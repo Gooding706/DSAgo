@@ -5,12 +5,6 @@ type Trie struct {
 	connections map[rune]*Trie
 }
 
-type TrieOpps interface {
-	Get(key string) any
-	Insert(key string, val any) bool
-	Delete(key string) bool
-}
-
 func (t *Trie) Insert(key string, val any) bool {
 	node := t
 	for _, char := range key {
@@ -47,8 +41,9 @@ func (t *Trie) Get(key string) any {
 
 func (t *Trie) Delete(key string) bool {
 	path := make([]*Trie, len(key)+1)
-	node := t
 	path[0] = t
+
+	node := t
 	for i, char := range key {
 		next := node.connections[char]
 		if next == nil {
@@ -59,15 +54,14 @@ func (t *Trie) Delete(key string) bool {
 		path[i+1] = node
 	}
 
+	path[len(key)].value = nil
+
 	for i := len(key); i > 0; i-- {
 		char := []rune(key)[i-1]
-		if len(path[i].connections) > 0 || path[i].connections[char] != nil {
+		if len(path[i].connections) > 0 || path[i].value != nil {
 			break
 		}
 		delete(path[i-1].connections, char)
 	}
-
-	path[len(key)].value = nil
-
 	return true
 }
